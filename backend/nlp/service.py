@@ -45,19 +45,21 @@ class NLPResult:
 
 
 # ──────────────────────────────────────────────────────────────
-# LLM API fallback
+# Gemini API fallback
 # ──────────────────────────────────────────────────────────────
 
-def _call_llm_for_category(text: str, available_categories: list[str]) -> dict:
-    """وقتی sklearn اطمینان کافی ندارد، از LLM API کمک می‌گیریم."""
+def _call_gemini_for_category(text: str, available_categories: list[str]) -> dict:
+    """وقتی sklearn اطمینان کافی ندارد، از Gemini API کمک می‌گیریم."""
     try:
-        import groq
-        api_key = os.environ.get("GROQ_API_KEY", "")
+        import google.generativeai as genai
+        api_key = os.environ.get("GEMINI_API_KEY", "")
         if not api_key:
-            logger.warning("[NLP] GROQ_API_KEY not set — skipping AI fallback")
+            logger.warning("[NLP] GEMINI_API_KEY not set — skipping AI fallback")
             return {"category": None, "confidence": 0.0}
 
-        client = groq.Groq(api_key=api_key)
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        
         categories_str = "\n".join(f"- {c}" for c in available_categories)
 
         prompt = f"""تو یک سیستم دسته‌بندی گزارش‌های شهری هستی.
@@ -69,26 +71,25 @@ def _call_llm_for_category(text: str, available_categories: list[str]) -> dict:
 متن گزارش:
 \"\"\"{text}\"\"\"
 
-فقط نام دسته را بنویس. بدون توضیح."""
+فقط نام دقیق یکی از دسته‌های بالا را برگردان. بدون هیچ توضیح اضافی یا متن دیگری."""
 
-        msg = client.messages.create(
-            model="llama-3.3-70b-versatile",
-            max_tokens=30,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        result = msg.content[0].text.strip()
+        response = model.generate_content(prompt)
+        result = response.text.strip()
 
         if result in available_categories:
-            return {"category": result, "confidence": 0.85}
+            return {"category": result, "confidence": 0.90}
+        
+        # Fuzzy match
         for cat in available_categories:
             if cat in result or result in cat:
-                return {"category": cat, "confidence": 0.70}
+                return {"category": cat, "confidence": 0.75}
+        
         return {"category": None, "confidence": 0.5}
 
     except ImportError:
-        logger.error("[NLP] groq not installed. Run: pip install groq")
+        logger.error("[NLP] google-generativeai not installed. Run: pip install google-generativeai")
     except Exception as e:
-        logger.error(f"[NLP] LLM API error: {e}")
+        logger.error(f"[NLP] Gemini API error: {e}")
     return {"category": None, "confidence": 0.0}
 
 
@@ -132,12 +133,12 @@ def analyze_report(text: str, available_categories: list[str] | None = None) -> 
         all_scores = sklearn_result["all_scores"]
 
     elif available_categories:
-        # ── ۳. Fallback به LLM API ────────────────────────────
+        # ── ۳. Fallback به Gemini API ────────────────────────────
         logger.info(
             f"[NLP] sklearn confidence={sklearn_result['confidence']:.2f} — "
-            "calling LLM API"
+            "calling Gemini API"
         )
-        ai_result = _call_llm_for_category(text, available_categories)
+        ai_result = _call_gemini_for_category(text, available_categories)
         used_ai = True
         suggested_category = ai_result["category"]
         category_confidence = ai_result["confidence"]
