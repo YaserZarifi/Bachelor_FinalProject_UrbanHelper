@@ -1,89 +1,95 @@
 /**
- * "Civic Signal" design tokens — shared with the citizen + admin web apps.
- * Ink canvas at night, amber "beacon" = the signal/attention accent, emerald
- * "civic" = resolved/service, coral = urgent, sky = info. RTL-first, Vazirmatn.
+ * شهریاور design tokens — light, minimal, professional.
  *
- * Key names are kept stable (brand / aurora / emerald / amber / rose) so every
- * screen keeps working; only the values changed. `onBrand` is the readable text
- * colour to place on a beacon-amber surface.
+ * A white "paper" canvas, near‑black text, 1px hairline borders, and a single
+ * restrained amber accent (flat fills only — no gradients, no glow). Status
+ * colours are muted but still distinct. RTL‑first, Vazirmatn.
+ *
+ * Export keys are kept stable (`brand` / `aurora` / `emerald` / `amber` / `rose`
+ * / `ink` / `surface` …) so every screen keeps working; several are now
+ * deprecated aliases that just point at a neutral value. `onBrand` is the
+ * readable near‑black text colour to place on an amber surface.
  */
 
 export const colors = {
-  // Beacon (amber) — the signature "signal" accent. `brand` for back-compat.
+  // Amber — the single interactive accent. `brand` kept for back‑compat.
   brand: {
     50: '#fff8ea',
     100: '#fdecc4',
     200: '#fbdd97',
     300: '#f9c95a',
     400: '#f9b526',
-    500: '#f2a20d',
-    600: '#d67f04',
+    500: '#f2a20d', // accent
+    600: '#d67f04', // accent — pressed / on‑white foreground
     700: '#b15c08',
     800: '#8f480e',
     900: '#763b0f',
     950: '#451e05',
   },
-  // Civic (emerald) — resolved / service / success / live
+  // Muted green — success / resolved / live. Deprecated ramp (retoned).
   civic: {
-    300: '#6ee7b7',
-    400: '#34d399',
-    500: '#10b981',
-    600: '#0d9c6e',
-    700: '#0f7a58',
+    300: '#9ec9b4',
+    400: '#6ba888',
+    500: '#3f7d5b',
+    600: '#356b4d',
+    700: '#2c5a41',
   },
-  // Sky — info / in-progress
+  // Muted blue — info / in‑progress. Deprecated ramp (retoned).
   sky: {
-    300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9',
-    600: '#0284c7',
+    300: '#a9c2d6',
+    400: '#7d9fbb',
+    500: '#5b7a9d',
+    600: '#4c6788',
   },
-  // Coral — urgent / crisis
+  // Muted red — urgent / crisis. Deprecated ramp (retoned).
   coral: {
-    300: '#fba3ae',
-    400: '#fb7185',
-    500: '#f43f5e',
-    600: '#e11d48',
+    300: '#d8b0ac',
+    400: '#c58079',
+    500: '#b04a44',
+    600: '#8f3d38',
   },
-  // Legacy "aurora" keys remapped onto the new palette so old references still render.
+  // Legacy "aurora" keys remapped onto muted equivalents so old references render.
   aurora: {
-    violet: '#f9b526', // → beacon
-    cyan: '#38bdf8', // → sky
-    teal: '#34d399', // → civic
-    fuchsia: '#fb7185', // → coral
-    sky: '#38bdf8',
+    violet: '#f2a20d', // → amber
+    cyan: '#5b7a9d', // → muted blue
+    teal: '#3f7d5b', // → muted green
+    fuchsia: '#b04a44', // → muted red
+    sky: '#5b7a9d',
   },
 
-  // Dark civic canvas
-  ink: '#0b1220',
-  ink2: '#101a2e',
-  surface: 'rgba(255,255,255,0.05)',
-  surfaceStrong: 'rgba(255,255,255,0.09)',
-  border: 'rgba(255,255,255,0.10)',
-  borderStrong: 'rgba(255,255,255,0.18)',
+  // Paper canvas + neutral fills
+  canvas: '#ffffff',
+  card: '#ffffff',
+  hairline: '#ececec',
+  ink: '#ffffff', // deprecated alias → canvas (was the dark canvas)
+  ink2: '#f6f6f5', // deprecated alias → subtle zoned background
+  surface: '#f4f4f5', // neutral fill (icon tiles, thumbnails, input bg)
+  surfaceStrong: '#eaeaec', // pressed rows / stronger fill
+  border: '#ececec', // hairline 1px — the workhorse separator
+  borderStrong: '#dcdcdc', // input borders, card edges
 
   white: '#ffffff',
-  onBrand: '#0b1220', // readable text on beacon-amber
-  text: '#f1f5f9',
-  textMuted: '#cbd5e1',
-  textFaint: '#94a3b8',
+  onBrand: '#1a1a1a', // readable near‑black text on amber
+  text: '#1a1a1a',
+  textMuted: '#5f5f5f',
+  textFaint: '#9b9b9b',
 
   // Semantic aliases
-  emerald: '#10b981',
-  emeraldSoft: 'rgba(16,185,129,0.16)',
+  emerald: '#3f7d5b',
+  emeraldSoft: '#e9f1eb',
   amber: '#f2a20d',
-  amberSoft: 'rgba(242,162,13,0.16)',
-  rose: '#f43f5e',
-  roseSoft: 'rgba(244,63,94,0.16)',
-  slate: '#64748b',
+  amberSoft: '#fbf1de',
+  rose: '#b04a44',
+  roseSoft: '#f6eae9',
+  slate: '#6b7280',
 };
 
 export const radius = {
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 26,
-  '2xl': 30,
+  sm: 8,
+  md: 12,
+  lg: 14,
+  xl: 16,
+  '2xl': 20,
   pill: 999,
 };
 
@@ -99,28 +105,21 @@ export const fonts = {
   black: 'Vazir_900',
 };
 
+// One subtle neutral shadow. `glow` / `emerald` are deprecated aliases of it —
+// apply only to opaque white floating surfaces (tab bar, toast, dialog).
+const subtle = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.06,
+  shadowRadius: 2,
+  elevation: 1,
+};
+
 export const shadow = {
-  glow: {
-    shadowColor: colors.brand[500],
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.45,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  card: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.35,
-    shadowRadius: 30,
-    elevation: 8,
-  },
-  emerald: {
-    shadowColor: colors.civic[500],
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 22,
-    elevation: 10,
-  },
+  card: subtle,
+  glow: subtle,
+  emerald: subtle,
+  none: {},
 };
 
 // Default RTL text style helpers

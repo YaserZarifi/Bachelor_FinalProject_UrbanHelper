@@ -1,12 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { fonts, radius } from '../../theme';
+import { colors, fonts, radius } from '../../theme';
 
-export function Chip({ label, color = '#f9b526', icon = null, style }) {
+export function Chip({ label, color = colors.brand[500], icon = null, style }) {
   return (
-    <View style={[styles.chip, { borderColor: color + '55', backgroundColor: color + '1f' }, style]}>
+    <View
+      style={[
+        styles.chip,
+        { borderColor: color + '33', backgroundColor: color + '14' },
+        style,
+      ]}
+    >
       {icon}
-      <Text style={[styles.text, { color }]}>{label}</Text>
+      <Text allowFontScaling={false} style={[styles.text, { color }]}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -16,11 +24,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.sm,
     borderWidth: 1,
     alignSelf: 'flex-start',
   },
-  text: { fontFamily: fonts.bold, fontSize: 12 },
+  text: { fontFamily: fonts.bold, fontSize: 12, writingDirection: 'rtl' },
 });

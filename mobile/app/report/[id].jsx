@@ -71,7 +71,7 @@ export default function ReportDetail() {
     return (
       <AuroraBackground>
         <SafeAreaView style={styles.center}>
-          <ActivityIndicator color={colors.brand[300]} />
+          <ActivityIndicator color={colors.brand[500]} />
         </SafeAreaView>
       </AuroraBackground>
     );
@@ -127,17 +127,9 @@ export default function ReportDetail() {
               {report.category_name ? <Meta icon="pricetag" label="دسته" value={report.category_name} /> : null}
               {report.gps_accuracy != null ? <Meta icon="locate" label="دقت موقعیت" value={`${Math.round(report.gps_accuracy)} متر`} /> : null}
               <Meta icon="calendar" label="تاریخ ثبت" value={faDate(report.created_at)} />
+              {report.nlp_sentiment ? <Meta icon="sparkles" label="احساس متن" value={report.nlp_sentiment} /> : null}
             </View>
           </GlassCard>
-
-          {report.nlp_sentiment ? (
-            <GlassCard style={{ marginTop: 14 }}>
-              <Text style={styles.cardLabel}>تحلیل هوشمند</Text>
-              <View style={styles.metaGrid}>
-                <Meta icon="sparkles" label="احساس متن" value={report.nlp_sentiment} />
-              </View>
-            </GlassCard>
-          ) : null}
 
           <GlassCard style={{ marginTop: 14 }}>
             <Text style={styles.cardLabel}>روند رسیدگی</Text>
@@ -158,7 +150,7 @@ export default function ReportDetail() {
           <Toast
             message={toast}
             iconName="checkmark-circle"
-            iconColor={colors.civic[400]}
+            iconColor={colors.white}
             onHide={() => setToast(null)}
           />
         )}
@@ -170,7 +162,7 @@ export default function ReportDetail() {
 function Meta({ icon, label, value }) {
   return (
     <View style={styles.meta}>
-      <Ionicons name={icon} size={15} color={colors.brand[300]} />
+      <Ionicons name={icon} size={15} color={colors.textFaint} />
       <Text style={styles.metaLabel}>{label}:</Text>
       <Text style={styles.metaValue}>{value}</Text>
     </View>
@@ -190,19 +182,19 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   errText: { color: colors.textMuted, fontFamily: fonts.medium, fontSize: 14, textAlign: 'center', marginTop: 12 },
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 6, paddingBottom: 8 },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  headerTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 17 },
+  iconBtn: { width: 38, height: 38, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
+  headerTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 17, writingDirection: 'rtl' },
   liveWrap: { width: 56, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'flex-start', gap: 5 },
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emerald },
   liveText: { color: colors.emerald, fontFamily: fonts.bold, fontSize: 12 },
   scroll: { paddingHorizontal: 16, paddingTop: 6 },
-  hero: { width: '100%', height: 230, borderRadius: radius.xl, backgroundColor: colors.surface },
+  hero: { width: '100%', height: 220, borderRadius: radius.lg, backgroundColor: colors.surface },
   statusRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, marginTop: 16 },
-  cardLabel: { color: colors.textFaint, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'right', marginBottom: 10 },
-  desc: { color: colors.text, fontFamily: fonts.medium, fontSize: 15, textAlign: 'right', lineHeight: 25 },
+  cardLabel: { color: colors.textFaint, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'right', writingDirection: 'rtl', marginBottom: 10 },
+  desc: { color: colors.text, fontFamily: fonts.medium, fontSize: 15, textAlign: 'right', writingDirection: 'rtl', lineHeight: 25 },
   metaGrid: { marginTop: 14, gap: 10 },
   meta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
-  metaLabel: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 13 },
-  metaValue: { color: colors.text, fontFamily: fonts.semibold, fontSize: 13 },
+  metaLabel: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 13, writingDirection: 'rtl' },
+  metaValue: { color: colors.text, fontFamily: fonts.semibold, fontSize: 13, writingDirection: 'rtl', flex: 1 },
   afterImg: { width: '100%', height: 200, borderRadius: radius.lg, marginTop: 4 },
 });

@@ -1,33 +1,27 @@
 import React from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { View, StyleSheet } from 'react-native';
 import { colors, radius, shadow } from '../../theme';
 
-/** Frosted-glass surface. Uses BlurView on iOS; a translucent fill elsewhere. */
-export function GlassCard({ children, style, intensity = 30, padded = true }) {
-  const inner = (
-    <View style={[styles.inner, padded && styles.padded]}>{children}</View>
+/**
+ * Flat white surface with a hairline border. (Name kept for its many call
+ * sites; `intensity` is accepted but ignored.)
+ */
+export function GlassCard({ children, style, intensity, padded = true }) {
+  return (
+    <View style={[styles.card, padded && styles.padded, style]}>{children}</View>
   );
-
-  if (Platform.OS === 'ios') {
-    return (
-      <BlurView intensity={intensity} tint="dark" style={[styles.card, style]}>
-        {inner}
-      </BlurView>
-    );
-  }
-  return <View style={[styles.card, styles.androidFill, style]}>{inner}</View>;
 }
+
+/** Preferred name for new code. */
+export const Card = GlassCard;
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.xl,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    overflow: 'hidden',
     ...shadow.card,
   },
-  androidFill: { backgroundColor: 'rgba(17,24,46,0.72)' },
-  inner: { borderRadius: radius.xl },
-  padded: { padding: 18 },
+  padded: { padding: 16 },
 });

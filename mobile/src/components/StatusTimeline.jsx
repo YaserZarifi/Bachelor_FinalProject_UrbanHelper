@@ -60,6 +60,6 @@ const styles = StyleSheet.create({
   nodeCurrent: { transform: [{ scale: 1.25 }] },
   rail: { width: 2, flex: 1, minHeight: 26, marginVertical: 2 },
   labelCol: { flex: 1, paddingBottom: 18, paddingRight: 10, marginTop: -2 },
-  label: { fontFamily: fonts.medium, fontSize: 14, textAlign: 'right' },
-  now: { color: colors.brand[300], fontFamily: fonts.semibold, fontSize: 11, textAlign: 'right', marginTop: 2 },
+  label: { fontFamily: fonts.medium, fontSize: 14, textAlign: 'right', writingDirection: 'rtl' },
+  now: { color: colors.brand[600], fontFamily: fonts.semibold, fontSize: 11, textAlign: 'right', writingDirection: 'rtl', marginTop: 2 },
 });

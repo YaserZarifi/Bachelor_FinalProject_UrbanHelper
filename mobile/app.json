@@ -5,13 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "urbanhelper",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#070b1a"
+      "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -26,7 +26,7 @@
       "package": "ir.urbanhelper.citizen",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4f46e5"
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "CAMERA",
@@ -54,15 +54,18 @@
       [
         "expo-notifications",
         {
-          "color": "#4f46e5"
+          "color": "#f2a20d"
         }
       ],
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#070b1a",
+          "backgroundColor": "#ffffff",
           "image": "./assets/splash.png",
-          "imageWidth": 200
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#ffffff"
+          }
         }
       ]
     ],

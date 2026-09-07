@@ -4,17 +4,20 @@ import { STATUS_COLOR, STATUS_LABEL } from '../constants/status';
 import { fonts, radius } from '../theme';
 
 export function StatusBadge({ status, size = 'md' }) {
-  const color = STATUS_COLOR[status] || '#94a3b8';
+  const color = STATUS_COLOR[status] || '#9b9b9b';
   return (
     <View
       style={[
         styles.badge,
-        { borderColor: color + '66', backgroundColor: color + '22' },
+        { borderColor: color + '3d', backgroundColor: color + '1a' },
         size === 'sm' && styles.sm,
       ]}
     >
       <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={[styles.text, { color }, size === 'sm' && styles.textSm]}>
+      <Text
+        allowFontScaling={false}
+        style={[styles.text, { color }, size === 'sm' && styles.textSm]}
+      >
         {STATUS_LABEL[status] || status}
       </Text>
     </View>
@@ -26,14 +29,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: 7,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.sm,
     borderWidth: 1,
     alignSelf: 'flex-start',
   },
-  sm: { paddingHorizontal: 10, paddingVertical: 4 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  text: { fontFamily: fonts.bold, fontSize: 13 },
+  sm: { paddingHorizontal: 8, paddingVertical: 3 },
+  dot: { width: 7, height: 7, borderRadius: 4 },
+  text: { fontFamily: fonts.bold, fontSize: 12, writingDirection: 'rtl' },
   textSm: { fontSize: 11 },
 });

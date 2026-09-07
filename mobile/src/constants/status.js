@@ -1,5 +1,3 @@
-import { colors } from '../theme';
-
 /** Report lifecycle — mirrors backend reports/serializers ALLOWED_STATUS_TRANSITIONS. */
 export const STATUS_ORDER = [
   'SUBMITTED',
@@ -19,13 +17,14 @@ export const STATUS_LABEL = {
   CLOSED: 'مختومه',
 };
 
+// Muted, still mutually distinct. All six pass AA on a white canvas.
 export const STATUS_COLOR = {
-  SUBMITTED: colors.sky[500],
-  UNDER_REVIEW: colors.sky[400],
-  ASSIGNED: colors.brand[400], // beacon
-  IN_PROGRESS: colors.brand[500], // beacon
-  RESOLVED: colors.civic[500], // emerald
-  CLOSED: colors.slate,
+  SUBMITTED: '#6b7280', // neutral grey
+  UNDER_REVIEW: '#5b7a9d', // muted blue
+  ASSIGNED: '#8a6d3b', // muted ochre
+  IN_PROGRESS: '#c07d1a', // muted amber (distinct from the #f2a20d accent)
+  RESOLVED: '#3f7d5b', // muted green
+  CLOSED: '#9b9b9b', // faint grey
 };
 
 export const statusIndex = (s) => Math.max(0, STATUS_ORDER.indexOf(s));

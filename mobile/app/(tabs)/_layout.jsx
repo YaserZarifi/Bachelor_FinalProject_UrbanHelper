@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Platform, Pressable } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,10 +8,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withSpring,
   Easing,
 } from 'react-native-reanimated';
-import { colors, fonts, shadow } from '../../src/theme';
+import { colors, fonts, radius } from '../../src/theme';
 
 const TABS = [
   { name: 'index', label: 'خانه', icon: 'home', iconOutline: 'home-outline' },
@@ -23,7 +20,7 @@ const TABS = [
 
 export default function TabsLayout() {
   return (
-    <Tabs tabBar={(props) => <GlassTabBar {...props} />} screenOptions={{ headerShown: false }}>
+    <Tabs tabBar={(props) => <DockedTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="reports" />
       <Tabs.Screen name="profile" />
@@ -31,158 +28,132 @@ export default function TabsLayout() {
   );
 }
 
-/** One tab: an animated pill + icon that pop when the tab becomes active. */
+/** A nav cell: icon + label with a subtle focus micro-interaction. */
 function TabItem({ tab, isFocused, onPress }) {
   const p = useSharedValue(isFocused ? 1 : 0);
   useEffect(() => {
     p.value = withTiming(isFocused ? 1 : 0, {
-      duration: 260,
+      duration: 200,
       easing: Easing.out(Easing.cubic),
     });
   }, [isFocused, p]);
 
-  const pillStyle = useAnimatedStyle(() => ({
-    opacity: p.value,
-    transform: [{ scale: 0.72 + p.value * 0.28 }],
-  }));
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: -p.value * 3 }, { scale: 1 + p.value * 0.08 }],
-  }));
-  const labelStyle = useAnimatedStyle(() => ({ opacity: 0.55 + p.value * 0.45 }));
+  const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + p.value * 0.06 }] }));
 
   return (
-    <Pressable style={styles.tab} onPress={onPress} hitSlop={8}>
-      <Animated.View style={[styles.pill, pillStyle]} />
-      <Animated.View style={iconStyle}>
+    <Pressable style={styles.cell} onPress={onPress} hitSlop={6}>
+      <View style={[styles.indicator, isFocused && styles.indicatorOn]} />
+      <Animated.View style={[styles.iconSlot, iconStyle]}>
         <Ionicons
           name={isFocused ? tab.icon : tab.iconOutline}
-          size={23}
-          color={isFocused ? colors.brand[300] : colors.textFaint}
+          size={22}
+          color={isFocused ? colors.brand[600] : colors.textFaint}
         />
       </Animated.View>
-      <Animated.Text style={[styles.label, isFocused && styles.labelActive, labelStyle]}>
+      <Text
+        allowFontScaling={false}
+        numberOfLines={1}
+        style={[styles.label, isFocused && styles.labelActive]}
+      >
         {tab.label}
-      </Animated.Text>
+      </Text>
     </Pressable>
   );
 }
 
-/** Floating action button — hovers above the tab bar (no center notch). */
-function ReportFab({ bottom }) {
+/** The inline primary action — opens the report wizard. */
+function ReportCell() {
   const router = useRouter();
-  const scale = useSharedValue(1);
-  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-
   const open = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     router.push('/report/new');
   };
-
   return (
-    <Animated.View style={[styles.fabWrap, { bottom }, style]}>
-      <Pressable
-        onPressIn={() => (scale.value = withSpring(0.92, { damping: 14 }))}
-        onPressOut={() => (scale.value = withSpring(1, { damping: 12 }))}
-        onPress={open}
-        accessibilityRole="button"
-        accessibilityLabel="ثبت گزارش جدید"
-      >
-        <LinearGradient
-          colors={[colors.brand[300], colors.brand[500]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.fab, shadow.glow]}
-        >
-          <Ionicons name="add" size={30} color={colors.onBrand} />
-        </LinearGradient>
-      </Pressable>
-    </Animated.View>
+    <Pressable
+      style={styles.cell}
+      onPress={open}
+      hitSlop={6}
+      accessibilityRole="button"
+      accessibilityLabel="ثبت گزارش جدید"
+    >
+      <View style={styles.indicator} />
+      <View style={styles.iconSlot}>
+        <View style={styles.reportSquare}>
+          <Ionicons name="add" size={22} color={colors.onBrand} />
+        </View>
+      </View>
+      <Text allowFontScaling={false} numberOfLines={1} style={styles.label}>
+        ثبت
+      </Text>
+    </Pressable>
   );
 }
 
-function GlassTabBar({ state, navigation }) {
+function DockedTabBar({ state, navigation }) {
   const insets = useSafeAreaInsets();
-  const [barHeight, setBarHeight] = useState(62);
+
+  const cells = [];
+  for (const route of state.routes) {
+    const tab = TABS.find((t) => t.name === route.name);
+    if (!tab) continue;
+    if (route.name === 'profile') cells.push(<ReportCell key="report-action" />);
+    const isFocused = state.routes[state.index]?.name === route.name;
+    const onPress = () => {
+      Haptics.selectionAsync().catch(() => {});
+      const event = navigation.emit({
+        type: 'tabPress',
+        target: route.key,
+        canPreventDefault: true,
+      });
+      if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+    };
+    cells.push(<TabItem key={route.key} tab={tab} isFocused={isFocused} onPress={onPress} />);
+  }
 
   return (
-    <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-      <ReportFab bottom={barHeight + 16} />
-
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 40 : 0}
-        tint="dark"
-        style={styles.bar}
-        onLayout={(e) => setBarHeight(e.nativeEvent.layout.height)}
-      >
-        <View style={styles.barInner}>
-          {state.routes
-            .filter((r) => TABS.some((t) => t.name === r.name))
-            .map((route) => {
-              const tab = TABS.find((t) => t.name === route.name);
-              const isFocused = state.routes[state.index]?.name === route.name;
-              const onPress = () => {
-                Haptics.selectionAsync().catch(() => {});
-                const event = navigation.emit({
-                  type: 'tabPress',
-                  target: route.key,
-                  canPreventDefault: true,
-                });
-                if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
-              };
-              return <TabItem key={route.key} tab={tab} isFocused={isFocused} onPress={onPress} />;
-            })}
-        </View>
-      </BlurView>
+    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+      <View style={styles.barInner}>{cells}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 16,
-    backgroundColor: 'transparent',
-  },
   bar: {
-    borderRadius: 26,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: Platform.OS === 'ios' ? 'rgba(11,18,32,0.4)' : 'rgba(14,22,42,0.94)',
-    ...shadow.card,
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   barInner: {
     flexDirection: 'row-reverse',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    alignItems: 'flex-start',
+    paddingTop: 6,
   },
-  tab: { alignItems: 'center', justifyContent: 'center', gap: 4, minWidth: 64, flex: 1, paddingVertical: 6 },
-  pill: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 12,
-    right: 12,
-    borderRadius: 16,
-    backgroundColor: colors.brand[500] + '20',
-    borderWidth: 1,
-    borderColor: colors.brand[500] + '2e',
+  cell: { flex: 1, alignItems: 'center', gap: 4 },
+  iconSlot: { height: 34, alignItems: 'center', justifyContent: 'center' },
+  indicator: {
+    height: 2,
+    width: 26,
+    borderRadius: 1,
+    backgroundColor: 'transparent',
+    marginBottom: 3,
   },
-  label: { color: colors.textFaint, fontFamily: fonts.medium, fontSize: 11 },
-  labelActive: { color: colors.brand[300], fontFamily: fonts.bold },
-  fabWrap: { position: 'absolute', right: 4, zIndex: 20 },
-  fab: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  indicatorOn: { backgroundColor: colors.brand[500] },
+  label: {
+    alignSelf: 'stretch',
+    color: colors.textFaint,
+    fontFamily: fonts.medium,
+    fontSize: 11,
+    lineHeight: 15,
+    textAlign: 'center',
+    writingDirection: 'rtl',
+  },
+  labelActive: { color: colors.brand[600], fontFamily: fonts.bold },
+  reportSquare: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.md,
+    backgroundColor: colors.brand[500],
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: colors.ink,
   },
 });

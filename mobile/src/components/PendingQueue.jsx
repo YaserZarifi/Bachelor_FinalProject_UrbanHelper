@@ -195,7 +195,7 @@ export function PendingQueue({ onSynced, style }) {
 }
 
 const styles = StyleSheet.create({
-  card: { marginTop: 14, borderColor: colors.amber + '55' },
+  card: { marginTop: 14 },
   header: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
@@ -203,11 +203,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 6,
   },
-  headerRight: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8 },
-  title: { color: colors.amber, fontFamily: fonts.semibold, fontSize: 13, textAlign: 'right' },
+  headerRight: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, flexShrink: 1 },
+  title: { color: colors.brand[600], fontFamily: fonts.semibold, fontSize: 13, textAlign: 'right', writingDirection: 'rtl' },
   statusRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  statusText: { fontFamily: fonts.medium, fontSize: 11 },
+  statusText: { fontFamily: fonts.medium, fontSize: 11, writingDirection: 'rtl' },
   items: { marginTop: 12, gap: 8 },
   item: {
     flexDirection: 'row-reverse',
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   itemBody: { flex: 1 },
-  itemDesc: { color: colors.text, fontFamily: fonts.medium, fontSize: 13, textAlign: 'right' },
+  itemDesc: { color: colors.text, fontFamily: fonts.medium, fontSize: 13, textAlign: 'right', writingDirection: 'rtl' },
   itemMeta: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 3 },
   itemTime: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 11 },
   metaDivider: { color: colors.textFaint, fontSize: 11 },
@@ -242,8 +242,8 @@ const styles = StyleSheet.create({
     marginTop: 14,
     minHeight: 44,
     borderRadius: radius.md,
-    backgroundColor: colors.brand[400],
+    backgroundColor: colors.brand[500],
   },
   sendBtnDisabled: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  sendText: { color: colors.onBrand, fontFamily: fonts.bold, fontSize: 14 },
+  sendText: { color: colors.onBrand, fontFamily: fonts.bold, fontSize: 14, writingDirection: 'rtl' },
 });

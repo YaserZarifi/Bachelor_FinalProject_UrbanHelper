@@ -149,13 +149,13 @@ export default function NewReport() {
             <Ionicons name={step === 0 ? 'close' : 'arrow-forward'} size={22} color={colors.text} />
           </Pressable>
           <Text style={styles.headerTitle}>{STEPS[step]}</Text>
-          <View style={{ width: 40 }} />
+          <View style={{ width: 38 }} />
         </View>
 
         {/* Stepper */}
         <View style={styles.stepper}>
           {STEPS.map((_, i) => (
-            <View key={i} style={[styles.stepBar, { backgroundColor: i <= step ? colors.brand[400] : colors.border }]} />
+            <View key={i} style={[styles.stepBar, { backgroundColor: i <= step ? colors.brand[500] : colors.border }]} />
           ))}
         </View>
 
@@ -167,7 +167,7 @@ export default function NewReport() {
                 <GlassCard style={styles.geoCard}>
                   {acquiring ? (
                     <View style={styles.geoRow}>
-                      <ActivityIndicator color={colors.brand[300]} />
+                      <ActivityIndicator color={colors.brand[500]} />
                       <Text style={styles.geoText}>در حال دریافت موقعیت دقیق…</Text>
                     </View>
                   ) : geoError ? (
@@ -193,7 +193,6 @@ export default function NewReport() {
                 disabled={!canNextFromCapture}
                 size="lg"
                 style={{ marginTop: 12 }}
-                icon={<Ionicons name="arrow-back" size={18} color={colors.onBrand} />}
               />
             </View>
           )}
@@ -235,7 +234,6 @@ export default function NewReport() {
                 disabled={description.trim().length < 3}
                 size="lg"
                 style={{ marginTop: 24 }}
-                icon={<Ionicons name="arrow-back" size={18} color={colors.onBrand} />}
               />
             </ScrollView>
           )}
@@ -248,7 +246,7 @@ export default function NewReport() {
                   <Text style={styles.reviewDesc}>{description.trim()}</Text>
                   <View style={styles.reviewMeta}>
                     {category && (
-                      <Chip label={categories.find((c) => c.id === category)?.name || ''} color={colors.brand[300]} />
+                      <Chip label={categories.find((c) => c.id === category)?.name || ''} color={colors.brand[600]} />
                     )}
                     {geo && <Chip label={`دقت ${Math.round(geo.accuracy)} متر`} color={colors.emerald} />}
                   </View>
@@ -277,10 +275,9 @@ export default function NewReport() {
                 title="ارسال گزارش"
                 onPress={submit}
                 loading={submitting}
-                variant="emerald"
                 size="lg"
                 style={{ marginTop: 20 }}
-                icon={<Ionicons name="send" size={18} color="#fff" />}
+                icon={<Ionicons name="send" size={17} color={colors.onBrand} />}
               />
             </ScrollView>
           )}
@@ -292,24 +289,24 @@ export default function NewReport() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 6 },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  headerTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 17 },
+  iconBtn: { width: 38, height: 38, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
+  headerTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 17, writingDirection: 'rtl' },
   stepper: { flexDirection: 'row-reverse', gap: 6, paddingHorizontal: 16, marginTop: 14 },
-  stepBar: { flex: 1, height: 4, borderRadius: 2 },
+  stepBar: { flex: 1, height: 3, borderRadius: radius.pill },
   captureStep: { flex: 1, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 8 },
   geoCard: { marginTop: 12 },
   geoRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10 },
   geoText: { color: colors.text, fontFamily: fonts.medium, fontSize: 14 },
-  retryLink: { color: colors.brand[300], fontFamily: fonts.bold, fontSize: 13 },
+  retryLink: { color: colors.brand[600], fontFamily: fonts.bold, fontSize: 13 },
   detailsStep: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 40 },
-  label: { color: colors.text, fontFamily: fonts.bold, fontSize: 16, textAlign: 'right' },
-  hint: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 12, textAlign: 'right', marginTop: 4 },
+  label: { color: colors.text, fontFamily: fonts.bold, fontSize: 16, textAlign: 'right', writingDirection: 'rtl' },
+  hint: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 12, textAlign: 'right', writingDirection: 'rtl', marginTop: 4 },
   catWrap: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8, marginTop: 12 },
-  cat: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  catActive: { borderColor: colors.brand[400], backgroundColor: colors.brand[500] + '33' },
-  catText: { color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 13 },
-  catTextActive: { color: colors.brand[200] },
-  textareaWrap: { marginTop: 12, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  cat: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
+  catActive: { borderColor: colors.brand[500], backgroundColor: colors.amberSoft },
+  catText: { color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 13, writingDirection: 'rtl' },
+  catTextActive: { color: colors.brand[600] },
+  textareaWrap: { marginTop: 12, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.white },
   textarea: { minHeight: 130, padding: 16, color: colors.text, fontFamily: fonts.regular, fontSize: 15, textAlignVertical: 'top', writingDirection: 'rtl', lineHeight: 24 },
   reviewImg: { width: '100%', height: 200 },
   reviewDesc: { color: colors.text, fontFamily: fonts.semibold, fontSize: 15, textAlign: 'right', lineHeight: 24 },

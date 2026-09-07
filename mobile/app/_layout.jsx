@@ -3,6 +3,7 @@ import { LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as SystemUI from 'expo-system-ui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import {
@@ -27,6 +28,7 @@ import {
 import { colors } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+SystemUI.setBackgroundColorAsync(colors.canvas).catch(() => {});
 
 // Remote push isn't supported in Expo Go (SDK 53+) — the app degrades gracefully
 // to live WebSocket updates + in-app toasts. Hide the expected dev noise.
@@ -105,15 +107,15 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.ink }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.canvas }}>
       <AuthProvider>
         <FeedbackProvider>
           <NotificationBridge />
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: colors.ink },
+              contentStyle: { backgroundColor: colors.canvas },
               animation: 'fade',
             }}
           >

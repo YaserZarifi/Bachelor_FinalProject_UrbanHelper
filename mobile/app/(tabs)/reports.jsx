@@ -13,7 +13,7 @@ import { PendingQueue } from '../../src/components/PendingQueue';
 import { useAuth } from '../../src/context/AuthContext';
 import { fetchMyReports, fetchReport } from '../../src/api/reports';
 import { getGuestReports } from '../../src/api/guestStore';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, radius } from '../../src/theme';
 
 export default function Reports() {
   const router = useRouter();
@@ -64,9 +64,9 @@ export default function Reports() {
     <AuroraBackground>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.title}>گزارش‌های من</Text>
+          <Text style={styles.title} allowFontScaling={false}>گزارش‌های من</Text>
           <Pressable style={styles.refresh} onPress={load}>
-            <Ionicons name="refresh" size={18} color={colors.text} />
+            <Ionicons name="refresh" size={18} color={colors.textMuted} />
           </Pressable>
         </View>
 
@@ -76,7 +76,7 @@ export default function Reports() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.brand[300]} />
+            <RefreshControl refreshing={loading} onRefresh={load} tintColor={colors.brand[500]} />
           }
           renderItem={({ item, index }) => (
             <Animated.View entering={FadeInDown.delay(Math.min(index, 8) * 55).duration(380)}>
@@ -89,7 +89,7 @@ export default function Reports() {
               <PendingQueue onSynced={load} />
               {error && items.length > 0 ? (
                 <View style={styles.errBanner}>
-                  <Ionicons name="cloud-offline-outline" size={16} color={colors.rose} />
+                  <Ionicons name="cloud-offline-outline" size={16} color={colors.textMuted} />
                   <Text style={styles.errText}>{error}</Text>
                 </View>
               ) : null}
@@ -103,13 +103,13 @@ export default function Reports() {
                 <Text style={styles.emptyText}>
                   {error || 'اولین گزارش خود را ثبت کنید تا روند رسیدگی را اینجا دنبال کنید.'}
                 </Text>
-                <Button title="ثبت گزارش جدید" onPress={() => router.push('/report/new')} style={{ marginTop: 16 }} />
+                <Button title="ثبت گزارش جدید" onPress={() => router.push('/report/new')} style={{ marginTop: 16, width: '100%' }} />
                 {!isAuthenticated && (
                   <Button
                     title="ورود به حساب"
-                    variant="ghost"
+                    variant="secondary"
                     onPress={() => router.push('/auth/login')}
-                    style={{ marginTop: 10 }}
+                    style={{ marginTop: 10, width: '100%' }}
                   />
                 )}
               </GlassCard>
@@ -126,18 +126,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 18, paddingTop: 10, paddingBottom: 8,
   },
-  title: { color: colors.text, fontFamily: fonts.black, fontSize: 24 },
+  title: { color: colors.text, fontFamily: fonts.black, fontSize: 22, writingDirection: 'rtl' },
   refresh: {
-    width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+    width: 38, height: 38, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white,
   },
-  list: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 140 },
+  list: { paddingHorizontal: 18, paddingTop: 8, paddingBottom: 28 },
   errBanner: {
     flexDirection: 'row-reverse', alignItems: 'center', gap: 8, marginBottom: 12,
-    paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14,
-    borderWidth: 1, borderColor: colors.roseSoft, backgroundColor: colors.roseSoft,
+    paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.md,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
   },
-  errText: { color: colors.rose, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'right', flex: 1 },
+  errText: { color: colors.textMuted, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'right', flex: 1 },
   empty: { alignItems: 'center', paddingVertical: 34, marginTop: 20 },
   emptyTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 16, marginTop: 14 },
   emptyText: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 13, textAlign: 'center', marginTop: 8, lineHeight: 21, paddingHorizontal: 10 },

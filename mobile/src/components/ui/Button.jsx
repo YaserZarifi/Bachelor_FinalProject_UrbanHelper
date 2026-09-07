@@ -1,12 +1,15 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { colors, radius, fonts, shadow } from '../../theme';
+import { colors, radius, fonts } from '../../theme';
 
 /**
- * variant: 'primary' (beacon amber) | 'emerald' (civic) | 'ghost' | 'glass'
- * Primary uses dark (ink) text on amber for accessible contrast.
+ * variant:
+ *   'primary'   — flat amber fill, near‑black text (the one accent)
+ *   'secondary' — white fill, hairline border, dark text
+ *   'ghost'     — transparent, amber link‑style text
+ *
+ * Back‑compat aliases: 'emerald' → primary, 'glass' → secondary.
  */
 export function Button({
   title,
@@ -18,17 +21,11 @@ export function Button({
   style,
   size = 'md',
 }) {
-  const isGradient = variant === 'primary' || variant === 'emerald';
-  const gradientColors =
-    variant === 'emerald'
-      ? [colors.civic[600], colors.civic[400]]
-      : [colors.brand[300], colors.brand[500]];
-  const solidText =
-    variant === 'primary'
-      ? colors.onBrand
-      : variant === 'emerald'
-        ? '#fff'
-        : colors.text;
+  const v =
+    variant === 'emerald' ? 'primary' : variant === 'glass' ? 'secondary' : variant;
+
+  const textColor =
+    v === 'primary' ? colors.onBrand : v === 'ghost' ? colors.brand[600] : colors.text;
 
   const handlePress = () => {
     if (disabled || loading) return;
@@ -36,46 +33,7 @@ export function Button({
     onPress?.();
   };
 
-  const content = (
-    <View style={styles.content}>
-      {loading ? (
-        <ActivityIndicator color={solidText} />
-      ) : (
-        <>
-          {icon}
-          <Text style={[styles.text, { color: solidText }, size === 'lg' && styles.textLg]}>
-            {title}
-          </Text>
-        </>
-      )}
-    </View>
-  );
-
   const pad = size === 'lg' ? styles.padLg : styles.padMd;
-
-  if (isGradient) {
-    return (
-      <Pressable
-        onPress={handlePress}
-        disabled={disabled || loading}
-        style={({ pressed }) => [
-          styles.base,
-          variant === 'emerald' ? shadow.emerald : shadow.glow,
-          { opacity: disabled ? 0.5 : 1, transform: [{ scale: pressed ? 0.975 : 1 }] },
-          style,
-        ]}
-      >
-        <LinearGradient
-          colors={gradientColors}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={[styles.gradient, pad]}
-        >
-          {content}
-        </LinearGradient>
-      </Pressable>
-    );
-  }
 
   return (
     <Pressable
@@ -84,32 +42,52 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         pad,
-        variant === 'glass' ? styles.glass : styles.ghost,
-        { opacity: disabled ? 0.5 : 1, transform: [{ scale: pressed ? 0.975 : 1 }] },
+        v === 'primary' && styles.primary,
+        v === 'secondary' && styles.secondary,
+        v === 'ghost' && styles.ghost,
+        v === 'primary' && pressed && styles.primaryPressed,
+        { opacity: disabled ? 0.45 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
         style,
       ]}
     >
-      {content}
+      <View style={styles.content}>
+        {loading ? (
+          <ActivityIndicator color={textColor} />
+        ) : (
+          <>
+            {icon}
+            <Text
+              allowFontScaling={false}
+              numberOfLines={1}
+              style={[styles.text, { color: textColor }, size === 'lg' && styles.textLg]}
+            >
+              {title}
+            </Text>
+          </>
+        )}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  base: { borderRadius: radius.pill, overflow: 'hidden' },
-  gradient: { borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
-  padMd: { paddingVertical: 14, paddingHorizontal: 22 },
-  padLg: { paddingVertical: 17, paddingHorizontal: 26 },
-  content: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  text: { color: '#fff', fontFamily: fonts.bold, fontSize: 15 },
-  textLg: { fontSize: 17 },
-  ghost: {
+  base: { borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  padMd: { paddingVertical: 13, paddingHorizontal: 20, minHeight: 46 },
+  padLg: { paddingVertical: 16, paddingHorizontal: 24, minHeight: 52 },
+  content: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  text: { fontFamily: fonts.bold, fontSize: 15, writingDirection: 'rtl' },
+  textLg: { fontSize: 16 },
+  primary: { backgroundColor: colors.brand[500] },
+  primaryPressed: { backgroundColor: colors.brand[600] },
+  secondary: {
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.borderStrong,
-    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  glass: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
+  ghost: { backgroundColor: 'transparent' },
 });

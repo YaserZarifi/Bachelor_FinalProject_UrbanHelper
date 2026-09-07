@@ -18,8 +18,8 @@ export default function Index() {
 
   if (!target) {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color={colors.brand[400]} />
+      <View style={{ flex: 1, backgroundColor: colors.canvas, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={colors.brand[500]} />
       </View>
     );
   }

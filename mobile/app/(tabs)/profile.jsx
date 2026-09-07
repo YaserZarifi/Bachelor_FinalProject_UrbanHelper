@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 
@@ -12,14 +11,14 @@ import { Button } from '../../src/components/ui/Button';
 import { useAuth } from '../../src/context/AuthContext';
 import { useFeedback } from '../../src/context/FeedbackContext';
 import { getStoredPushToken } from '../../src/notifications/pushManager';
-import { colors, fonts, shadow } from '../../src/theme';
+import { colors, fonts } from '../../src/theme';
 
 function Row({ icon, label, value, onPress, danger }) {
   return (
-    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [styles.row, pressed && onPress && { opacity: 0.7 }]}>
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [styles.row, pressed && onPress && { opacity: 0.6 }]}>
       <View style={styles.rowRight}>
         <View style={[styles.rowIcon, danger && { backgroundColor: colors.roseSoft }]}>
-          <Ionicons name={icon} size={18} color={danger ? colors.rose : colors.brand[300]} />
+          <Ionicons name={icon} size={17} color={danger ? colors.rose : colors.textMuted} />
         </View>
         <Text style={[styles.rowLabel, danger && { color: colors.rose }]}>{label}</Text>
       </View>
@@ -55,15 +54,12 @@ export default function Profile() {
     <AuroraBackground>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>پروفایل</Text>
+          <Text style={styles.title} allowFontScaling={false}>پروفایل</Text>
 
           <GlassCard style={styles.identity}>
-            <LinearGradient
-              colors={[colors.brand[300], colors.brand[500]]}
-              style={[styles.avatar, shadow.glow]}
-            >
-              <Ionicons name={isAuthenticated ? 'person' : 'person-outline'} size={32} color={colors.onBrand} />
-            </LinearGradient>
+            <View style={styles.avatar}>
+              <Ionicons name={isAuthenticated ? 'person' : 'person-outline'} size={30} color={colors.text} />
+            </View>
             <Text style={styles.name}>{isAuthenticated ? user?.username : 'کاربر مهمان'}</Text>
             <Text style={styles.role}>
               {isAuthenticated ? 'حساب تأییدشده' : 'بدون ورود — گزارش‌ها روی این دستگاه دنبال می‌شوند'}
@@ -99,7 +95,7 @@ export default function Profile() {
           )}
 
           <Text style={styles.footer}>شهریاور — سامانهٔ گزارش شهروندی</Text>
-          <View style={{ height: 120 }} />
+          <View style={{ height: 24 }} />
         </ScrollView>
       </SafeAreaView>
     </AuroraBackground>
@@ -108,18 +104,27 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 18, paddingTop: 10 },
-  title: { color: colors.text, fontFamily: fonts.black, fontSize: 24, textAlign: 'right' },
-  identity: { alignItems: 'center', paddingVertical: 24, marginTop: 16 },
-  avatar: { width: 76, height: 76, borderRadius: 38, alignItems: 'center', justifyContent: 'center' },
-  name: { color: colors.text, fontFamily: fonts.black, fontSize: 20, marginTop: 14 },
-  role: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 13, marginTop: 6, textAlign: 'center', paddingHorizontal: 16 },
-  section: { color: colors.text, fontFamily: fonts.bold, fontSize: 16, textAlign: 'right', marginTop: 24, marginBottom: 12 },
+  title: { color: colors.text, fontFamily: fonts.black, fontSize: 22, textAlign: 'right', writingDirection: 'rtl' },
+  identity: { alignItems: 'center', paddingVertical: 22, marginTop: 16 },
+  avatar: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  name: { color: colors.text, fontFamily: fonts.black, fontSize: 19, marginTop: 14, writingDirection: 'rtl' },
+  role: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 13, marginTop: 6, textAlign: 'center', writingDirection: 'rtl', paddingHorizontal: 16, lineHeight: 20 },
+  section: { color: colors.text, fontFamily: fonts.bold, fontSize: 16, textAlign: 'right', writingDirection: 'rtl', marginTop: 24, marginBottom: 12 },
   group: { overflow: 'hidden' },
-  row: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 15 },
-  rowRight: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
-  rowIcon: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand[500] + '22' },
-  rowLabel: { color: colors.text, fontFamily: fonts.semibold, fontSize: 14 },
-  rowValue: { color: colors.textFaint, fontFamily: fonts.medium, fontSize: 13 },
+  row: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 14 },
+  rowRight: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
+  rowIcon: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  rowLabel: { flex: 1, color: colors.text, fontFamily: fonts.semibold, fontSize: 14, textAlign: 'right', writingDirection: 'rtl' },
+  rowValue: { color: colors.textFaint, fontFamily: fonts.medium, fontSize: 13, writingDirection: 'rtl' },
   divider: { height: 1, backgroundColor: colors.border, marginHorizontal: 16 },
   footer: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 12, textAlign: 'center', marginTop: 28 },
 });

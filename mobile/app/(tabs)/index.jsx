@@ -2,31 +2,23 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import { AuroraBackground } from '../../src/components/ui/AuroraBackground';
 import { GlassCard } from '../../src/components/ui/GlassCard';
 import { Button } from '../../src/components/ui/Button';
-import { BrandLockup } from '../../src/components/Brand';
-import { StatusBadge } from '../../src/components/StatusBadge';
+import { Wordmark } from '../../src/components/Brand';
+import { ReportCard } from '../../src/components/ReportCard';
 import { PendingQueue } from '../../src/components/PendingQueue';
 import { useAuth } from '../../src/context/AuthContext';
 import { initPush } from '../../src/notifications/pushManager';
 import { getGuestReports } from '../../src/api/guestStore';
 import { fetchMyReports } from '../../src/api/reports';
-import { colors, fonts, radius, shadow } from '../../src/theme';
-
-const STEPS = [
-  { icon: 'camera', title: 'ثبت تصویر زنده', text: 'عکس معتبر و ضدجعل با دوربین' },
-  { icon: 'location', title: 'قفل موقعیت', text: 'موقعیت دقیق از GPS دستگاه' },
-  { icon: 'send', title: 'ارسال گزارش', text: 'توضیح کوتاه و ارسال سریع' },
-  { icon: 'notifications', title: 'پیگیری زنده', text: 'اعلان هنگام تغییر وضعیت' },
-];
+import { colors, fonts } from '../../src/theme';
 
 const EMERGENCY = [
-  { label: 'پلیس', number: '110', icon: 'shield-checkmark', color: colors.aurora.sky },
+  { label: 'پلیس', number: '110', icon: 'shield-checkmark', color: colors.slate },
   { label: 'آتش‌نشانی', number: '125', icon: 'flame', color: colors.rose },
   { label: 'اورژانس', number: '115', icon: 'medkit', color: colors.emerald },
 ];
@@ -36,8 +28,6 @@ export default function Home() {
   const { isAuthenticated, user } = useAuth();
   const [latest, setLatest] = useState(null);
 
-  // Register for push once on entry. The offline queue (flush-on-reconnect,
-  // delete, live connection state) is owned by <PendingQueue/> below.
   useEffect(() => {
     initPush({ authenticated: isAuthenticated });
   }, [isAuthenticated]);
@@ -65,105 +55,80 @@ export default function Home() {
     <AuroraBackground>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <BrandLockup />
-            <Pressable style={styles.bell} onPress={() => router.push('/(tabs)/reports')}>
-              <Ionicons name="notifications-outline" size={22} color={colors.text} />
-            </Pressable>
-          </View>
+          <Wordmark size={20} style={styles.brand} />
 
           <Text style={styles.greeting}>
-            {isAuthenticated ? `سلام${user?.username ? '، ' + user.username : ''} 👋` : 'سلام شهروند گرامی 👋'}
+            {isAuthenticated
+              ? `سلام${user?.username ? '، ' + user.username : ''}`
+              : 'سلام شهروند گرامی'}
           </Text>
-          <Text style={styles.sub}>چه مشکلی را امروز گزارش می‌کنی؟</Text>
 
-          {/* Hero CTA */}
-          <Animated.View entering={FadeInDown.duration(500).springify()}>
-            <Pressable onPress={() => router.push('/report/new')}>
-              <LinearGradient
-                colors={['#1a2540', colors.ink]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.hero, shadow.card]}
-              >
-                <View style={styles.heroGlow} />
-                <View style={styles.heroBadge}>
-                  <Ionicons name="shield-checkmark" size={14} color={colors.civic[400]} />
-                  <Text style={styles.heroBadgeText}>ثبت امن و ضدجعل</Text>
-                </View>
-                <Text style={styles.heroTitle}>ثبت گزارش جدید</Text>
-                <Text style={styles.heroText}>در کمتر از یک دقیقه، تصویر و موقعیت را ثبت کن.</Text>
-                <View style={styles.heroBtn}>
-                  <Ionicons name="add-circle" size={20} color={colors.onBrand} />
-                  <Text style={styles.heroBtnText}>شروع کن</Text>
-                </View>
-              </LinearGradient>
-            </Pressable>
+          {/* Primary call to action */}
+          <Animated.View entering={FadeInDown.duration(360)}>
+            <GlassCard>
+              <Text style={styles.ctaTitle}>ثبت گزارش جدید</Text>
+              <Text style={styles.ctaText}>
+                در کمتر از یک دقیقه، تصویر و موقعیت مشکل را ثبت کنید.
+              </Text>
+              <Button
+                title="شروع گزارش"
+                onPress={() => router.push('/report/new')}
+                style={{ marginTop: 16 }}
+              />
+            </GlassCard>
           </Animated.View>
 
-          {/* Live offline outbox: connection state, per-item delete, send-now. */}
+          {/* Live offline outbox */}
           <PendingQueue onSynced={refresh} />
 
-          {/* Latest report mini-status */}
+          {/* Latest report */}
           {latest && (
-            <Animated.View entering={FadeIn.duration(400)}>
-            <Pressable onPress={() => router.push(`/report/${latest.id}`)}>
-              <GlassCard style={{ marginTop: 14 }}>
-                <Text style={styles.cardLabel}>آخرین گزارش شما</Text>
-                <View style={styles.latestRow}>
-                  <StatusBadge status={latest.status} size="sm" />
-                  <Text style={styles.latestId}>#{latest.id}</Text>
-                </View>
-                <Text numberOfLines={1} style={styles.latestDesc}>{latest.description || 'بدون توضیح'}</Text>
-              </GlassCard>
-            </Pressable>
+            <Animated.View entering={FadeIn.duration(300)} style={{ marginTop: 14 }}>
+              <Text style={styles.sectionLabel}>آخرین گزارش شما</Text>
+              <ReportCard report={latest} onPress={() => router.push(`/report/${latest.id}`)} />
             </Animated.View>
           )}
 
-          {/* Steps */}
-          <Text style={styles.section}>در چهار گام ساده</Text>
-          <View style={styles.stepsGrid}>
-            {STEPS.map((s, i) => (
-              <Animated.View key={s.title} entering={FadeInDown.delay(i * 70).duration(400)} style={styles.step}>
-                <GlassCard>
-                  <View style={styles.stepIcon}>
-                    <Ionicons name={s.icon} size={20} color={colors.brand[300]} />
-                  </View>
-                  <Text style={styles.stepNum}>{(i + 1).toLocaleString('fa-IR')}</Text>
-                  <Text style={styles.stepTitle}>{s.title}</Text>
-                  <Text style={styles.stepText}>{s.text}</Text>
-                </GlassCard>
-              </Animated.View>
-            ))}
-          </View>
-
-          {/* Emergency */}
+          {/* Emergency contacts */}
           <Text style={styles.section}>تماس‌های اضطراری</Text>
-          <View style={styles.emergencyRow}>
-            {EMERGENCY.map((e) => (
-              <Pressable key={e.number} style={{ flex: 1 }} onPress={() => Linking.openURL(`tel:${e.number}`)}>
-                <GlassCard style={styles.emCard}>
-                  <View style={[styles.emIcon, { backgroundColor: e.color + '22' }]}>
-                    <Ionicons name={e.icon} size={22} color={e.color} />
-                  </View>
-                  <Text style={styles.emLabel}>{e.label}</Text>
-                  <Text style={styles.emNumber}>{e.number.toLocaleString('fa-IR')}</Text>
-                </GlassCard>
+          <GlassCard padded={false}>
+            {EMERGENCY.map((e, i) => (
+              <Pressable
+                key={e.number}
+                onPress={() => Linking.openURL(`tel:${e.number}`)}
+                style={({ pressed }) => [
+                  styles.emRow,
+                  i < EMERGENCY.length - 1 && styles.emRowBorder,
+                  pressed && { backgroundColor: colors.surface },
+                ]}
+              >
+                <View style={styles.emIcon}>
+                  <Ionicons name={e.icon} size={16} color={e.color} />
+                </View>
+                <Text style={styles.emLabel} numberOfLines={1}>
+                  {e.label}
+                </Text>
+                <Text style={styles.emNumber} allowFontScaling={false}>
+                  {e.number}
+                </Text>
               </Pressable>
             ))}
-          </View>
+          </GlassCard>
 
           {!isAuthenticated && (
-            <GlassCard style={{ marginTop: 18 }}>
-              <Text style={styles.cardLabel}>حساب کاربری</Text>
-              <Text style={styles.loginHint}>
-                با ورود به حساب، همهٔ گزارش‌هایت را در یک‌جا دنبال کن و اعلان‌ها را روی همهٔ دستگاه‌ها داشته باش.
+            <View style={styles.guest}>
+              <Text style={styles.guestText}>
+                با ورود به حساب، گزارش‌ها را روی همهٔ دستگاه‌ها دنبال کنید.
               </Text>
-              <Button title="ورود / ثبت‌نام" variant="glass" onPress={() => router.push('/auth/login')} style={{ marginTop: 12 }} />
-            </GlassCard>
+              <Button
+                title="ورود / ثبت‌نام"
+                variant="ghost"
+                onPress={() => router.push('/auth/login')}
+              />
+            </View>
           )}
 
-          <View style={{ height: 120 }} />
+          <View style={{ height: 24 }} />
         </ScrollView>
       </SafeAreaView>
     </AuroraBackground>
@@ -171,46 +136,90 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  scroll: { paddingHorizontal: 18, paddingTop: 6 },
-  header: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  bell: {
-    width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+  scroll: { paddingHorizontal: 18, paddingTop: 10 },
+  brand: { alignSelf: 'stretch', marginBottom: 4 },
+  greeting: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 20,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    marginTop: 14,
+    marginBottom: 16,
   },
-  greeting: { color: colors.text, fontFamily: fonts.black, fontSize: 24, textAlign: 'right', marginTop: 20 },
-  sub: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 15, textAlign: 'right', marginTop: 4 },
-  hero: { borderRadius: radius['2xl'], padding: 22, marginTop: 18, overflow: 'hidden' },
-  heroGlow: { position: 'absolute', top: -50, left: -30, width: 180, height: 180, borderRadius: 90, backgroundColor: 'rgba(242,162,13,0.22)' },
-  heroBadge: {
-    flexDirection: 'row-reverse', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.18)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999,
+  ctaTitle: {
+    color: colors.text,
+    fontFamily: fonts.black,
+    fontSize: 18,
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
-  heroBadgeText: { color: '#fff', fontFamily: fonts.bold, fontSize: 11 },
-  heroTitle: { color: '#fff', fontFamily: fonts.black, fontSize: 26, textAlign: 'right', marginTop: 14 },
-  heroText: { color: 'rgba(255,255,255,0.9)', fontFamily: fonts.regular, fontSize: 14, textAlign: 'right', marginTop: 6 },
-  heroBtn: {
-    flexDirection: 'row-reverse', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
-    backgroundColor: colors.brand[400], paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, marginTop: 16,
+  ctaText: {
+    color: colors.textMuted,
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    marginTop: 6,
+    lineHeight: 23,
   },
-  heroBtnText: { color: colors.onBrand, fontFamily: fonts.bold, fontSize: 14 },
-  cardLabel: { color: colors.textFaint, fontFamily: fonts.semibold, fontSize: 12, textAlign: 'right', marginBottom: 8 },
-  latestRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  latestId: { color: colors.textFaint, fontFamily: fonts.medium, fontSize: 13 },
-  latestDesc: { color: colors.text, fontFamily: fonts.medium, fontSize: 14, textAlign: 'right', marginTop: 8 },
-  section: { color: colors.text, fontFamily: fonts.bold, fontSize: 18, textAlign: 'right', marginTop: 28, marginBottom: 14 },
-  stepsGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 12 },
-  step: { width: '47%', flexGrow: 1 },
-  stepIcon: {
-    width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.brand[500] + '22',
+  sectionLabel: {
+    color: colors.textFaint,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    marginBottom: 8,
   },
-  stepNum: { position: 'absolute', top: 12, left: 16, color: 'rgba(255,255,255,0.08)', fontFamily: fonts.black, fontSize: 40 },
-  stepTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 15, textAlign: 'right', marginTop: 12 },
-  stepText: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 12, textAlign: 'right', marginTop: 4, lineHeight: 19 },
-  emergencyRow: { flexDirection: 'row-reverse', gap: 10 },
-  emCard: { alignItems: 'center', paddingVertical: 16 },
-  emIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  emLabel: { color: colors.textMuted, fontFamily: fonts.medium, fontSize: 12, marginTop: 8 },
-  emNumber: { color: colors.text, fontFamily: fonts.black, fontSize: 18, marginTop: 2 },
-  loginHint: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 13, textAlign: 'right', lineHeight: 21 },
+  section: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 16,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    marginTop: 26,
+    marginBottom: 12,
+  },
+  emRow: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  emRowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
+  emIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+  },
+  emLabel: {
+    flex: 1,
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 14,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  emNumber: {
+    color: colors.textMuted,
+    fontFamily: fonts.bold,
+    fontSize: 15,
+  },
+  guest: {
+    marginTop: 24,
+    alignItems: 'center',
+    gap: 8,
+  },
+  guestText: {
+    color: colors.textFaint,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    textAlign: 'center',
+    writingDirection: 'rtl',
+    lineHeight: 20,
+  },
 });

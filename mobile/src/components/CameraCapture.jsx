@@ -21,7 +21,7 @@ export function CameraCapture({ photoUri, onCaptured, onRetake }) {
   if (!permission) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={colors.brand[300]} />
+        <ActivityIndicator color={colors.brand[500]} />
       </View>
     );
   }
@@ -30,7 +30,7 @@ export function CameraCapture({ photoUri, onCaptured, onRetake }) {
     return (
       <View style={styles.center}>
         <View style={styles.permIcon}>
-          <Ionicons name="camera-outline" size={40} color={colors.brand[300]} />
+          <Ionicons name="camera-outline" size={40} color={colors.brand[500]} />
         </View>
         <Text style={styles.permTitle}>دسترسی به دوربین لازم است</Text>
         <Text style={styles.permText}>
@@ -104,7 +104,7 @@ export function CameraCapture({ photoUri, onCaptured, onRetake }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  permIcon: { width: 84, height: 84, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand[500] + '22' },
+  permIcon: { width: 84, height: 84, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
   permTitle: { color: colors.text, fontFamily: fonts.bold, fontSize: 18, marginTop: 16 },
   permText: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 14, textAlign: 'center', marginTop: 8, lineHeight: 22 },
   cameraWrap: { flex: 1, borderRadius: radius.xl, overflow: 'hidden', backgroundColor: '#000' },

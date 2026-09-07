@@ -7,11 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuroraBackground } from '../../src/components/ui/AuroraBackground';
 import { GlassCard } from '../../src/components/ui/GlassCard';
 import { Button } from '../../src/components/ui/Button';
-import { BrandMark } from '../../src/components/Brand';
+import { Wordmark } from '../../src/components/Brand';
 import { Field } from '../../src/components/ui/Field';
 import { useAuth } from '../../src/context/AuthContext';
 import { initPush } from '../../src/notifications/pushManager';
-import { colors, fonts } from '../../src/theme';
+import { colors, fonts, radius } from '../../src/theme';
 
 export default function Register() {
   const router = useRouter();
@@ -51,7 +51,7 @@ export default function Register() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
             <View style={styles.brand}>
-              <BrandMark size={56} />
+              <Wordmark size={30} />
               <Text style={styles.title}>ساخت حساب کاربری</Text>
               <Text style={styles.sub}>به جامعهٔ شهروندان فعال بپیوندید</Text>
             </View>
@@ -78,13 +78,13 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row-reverse', paddingHorizontal: 16, paddingTop: 6 },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  iconBtn: { width: 38, height: 38, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
   scroll: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 30 },
-  brand: { alignItems: 'center', marginBottom: 26 },
-  title: { color: colors.text, fontFamily: fonts.black, fontSize: 24, marginTop: 16 },
-  sub: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 14, marginTop: 6, textAlign: 'center' },
-  error: { color: colors.rose, fontFamily: fonts.medium, fontSize: 13, textAlign: 'right', marginTop: 12 },
+  brand: { alignItems: 'center', marginBottom: 26, gap: 10 },
+  title: { color: colors.text, fontFamily: fonts.black, fontSize: 22, marginTop: 6, writingDirection: 'rtl' },
+  sub: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 14, marginTop: 4, textAlign: 'center', writingDirection: 'rtl', lineHeight: 21 },
+  error: { color: colors.rose, fontFamily: fonts.medium, fontSize: 13, textAlign: 'right', writingDirection: 'rtl', marginTop: 12 },
   switch: { alignItems: 'center', marginTop: 22 },
-  switchText: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 14 },
-  switchLink: { color: colors.brand[300], fontFamily: fonts.bold },
+  switchText: { color: colors.textMuted, fontFamily: fonts.regular, fontSize: 14, writingDirection: 'rtl' },
+  switchLink: { color: colors.brand[600], fontFamily: fonts.bold },
 });

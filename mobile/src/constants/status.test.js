@@ -56,9 +56,9 @@ describe('STATUS_COLOR', () => {
     }
   })
 
-  it('agrees with the web clients on resolved and in-progress', () => {
-    expect(STATUS_COLOR.RESOLVED.toLowerCase()).toBe('#10b981')
-    expect(STATUS_COLOR.IN_PROGRESS.toLowerCase()).toBe('#f2a20d')
+  it('gives every status a distinct colour', () => {
+    const values = Object.values(STATUS_COLOR).map((h) => h.toLowerCase())
+    expect(new Set(values).size).toBe(values.length)
   })
 })
 

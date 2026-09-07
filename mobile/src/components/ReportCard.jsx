@@ -68,9 +68,9 @@ const styles = StyleSheet.create({
   thumbEmpty: { alignItems: 'center', justifyContent: 'center' },
   body: { flex: 1, justifyContent: 'space-between' },
   topRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between' },
-  desc: { color: colors.text, fontFamily: fonts.semibold, fontSize: 14, textAlign: 'right', marginTop: 6, lineHeight: 21 },
+  desc: { color: colors.text, fontFamily: fonts.semibold, fontSize: 14, textAlign: 'right', writingDirection: 'rtl', marginTop: 6, lineHeight: 21 },
   metaRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' },
-  meta: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 11 },
+  meta: { color: colors.textFaint, fontFamily: fonts.regular, fontSize: 11, writingDirection: 'rtl' },
   urgent: { flexDirection: 'row-reverse', alignItems: 'center', gap: 4 },
   urgentText: { color: colors.rose, fontFamily: fonts.bold, fontSize: 11 },
 });

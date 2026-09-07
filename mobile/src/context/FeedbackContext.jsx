@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { Toast } from '../components/ui/Toast';
@@ -17,11 +16,12 @@ import { colors, fonts, radius, shadow } from '../theme';
  */
 const FeedbackContext = createContext({ toast: () => {}, alert: () => {} });
 
+// Toast renders on a near‑black pill, so the icon is white; the glyph carries the tone.
 const TONE = {
-  info: { icon: 'notifications', color: colors.brand[300] },
-  success: { icon: 'checkmark-circle', color: colors.civic[400] },
-  error: { icon: 'alert-circle', color: colors.coral[400] },
-  warning: { icon: 'warning', color: colors.brand[400] },
+  info: { icon: 'notifications', color: colors.white },
+  success: { icon: 'checkmark-circle', color: colors.white },
+  error: { icon: 'alert-circle', color: colors.white },
+  warning: { icon: 'warning', color: colors.white },
 };
 
 export function FeedbackProvider({ children }) {
@@ -82,15 +82,9 @@ export function FeedbackProvider({ children }) {
           >
             <Pressable style={StyleSheet.absoluteFill} onPress={closeDialog} />
             <Animated.View entering={ZoomIn.springify().damping(18)} style={styles.cardWrap}>
-              {Platform.OS === 'ios' ? (
-                <BlurView intensity={40} tint="dark" style={styles.card}>
-                  <DialogBody dialog={dialog} onButton={runButton} />
-                </BlurView>
-              ) : (
-                <View style={[styles.card, styles.cardAndroid]}>
-                  <DialogBody dialog={dialog} onButton={runButton} />
-                </View>
-              )}
+              <View style={styles.card}>
+                <DialogBody dialog={dialog} onButton={runButton} />
+              </View>
             </Animated.View>
           </Animated.View>
         )}
@@ -103,7 +97,7 @@ function DialogBody({ dialog, onButton }) {
   return (
     <View style={styles.cardInner}>
       <View style={styles.dialogIcon}>
-        <Ionicons name="chatbubble-ellipses" size={22} color={colors.brand[300]} />
+        <Ionicons name="chatbubble-ellipses" size={22} color={colors.textMuted} />
       </View>
       {!!dialog.title && <Text style={styles.title}>{dialog.title}</Text>}
       {!!dialog.message && <Text style={styles.message}>{dialog.message}</Text>}
@@ -124,6 +118,8 @@ function DialogBody({ dialog, onButton }) {
               ]}
             >
               <Text
+                allowFontScaling={false}
+                numberOfLines={1}
                 style={[
                   styles.btnText,
                   destructive && { color: '#fff' },
@@ -149,7 +145,7 @@ export function useFeedback() {
 const styles = StyleSheet.create({
   scrim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(6,10,20,0.62)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 28,
@@ -157,29 +153,30 @@ const styles = StyleSheet.create({
   },
   cardWrap: { width: '100%', maxWidth: 360 },
   card: {
-    borderRadius: radius.xl,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
     overflow: 'hidden',
     ...shadow.card,
   },
-  cardAndroid: { backgroundColor: 'rgba(17,26,46,0.98)' },
   cardInner: { padding: 22, alignItems: 'center' },
   dialogIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.brand[500] + '22',
+    backgroundColor: colors.surface,
     marginBottom: 12,
   },
-  title: { color: colors.text, fontFamily: fonts.black, fontSize: 18, textAlign: 'center' },
+  title: { color: colors.text, fontFamily: fonts.black, fontSize: 18, textAlign: 'center', writingDirection: 'rtl' },
   message: {
     color: colors.textMuted,
     fontFamily: fonts.regular,
     fontSize: 14,
     textAlign: 'center',
+    writingDirection: 'rtl',
     lineHeight: 23,
     marginTop: 8,
   },
@@ -192,8 +189,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 12,
   },
-  btnDefault: { backgroundColor: colors.brand[400] },
-  btnDestructive: { backgroundColor: colors.coral[500] },
-  btnCancel: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: 'transparent' },
-  btnText: { fontFamily: fonts.bold, fontSize: 14 },
+  btnDefault: { backgroundColor: colors.brand[500] },
+  btnDestructive: { backgroundColor: colors.rose },
+  btnCancel: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.white },
+  btnText: { fontFamily: fonts.bold, fontSize: 14, writingDirection: 'rtl' },
 });
