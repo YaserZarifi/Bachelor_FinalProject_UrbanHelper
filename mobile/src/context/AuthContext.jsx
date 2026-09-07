@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { getAccessToken, clearTokens } from '../api/client';
+import { getAccessToken, clearTokens, setUnauthorizedHandler } from '../api/client';
 import * as authApi from '../api/auth';
 
 const AuthContext = createContext(null);
@@ -61,6 +61,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     refreshFromStorage();
   }, [refreshFromStorage]);
+
+  // A dead session (refresh token rejected by the server) → drop the ghost user.
+  useEffect(() => {
+    setUnauthorizedHandler(() => setUser(null));
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   const signIn = useCallback(async (username, password) => {
     await authApi.login(username, password);

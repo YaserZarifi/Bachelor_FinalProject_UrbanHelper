@@ -43,13 +43,23 @@ export async function clearTokens() {
 // ── Axios instance ───────────────────────────────────────────────────────────
 export const api = axios.create({ baseURL: API_ROOT, timeout: 30000 });
 
+// Called when a stored session turns out to be dead (refresh rejected). Lets
+// AuthContext drop the ghost user so the UI falls back to guest mode.
+let onUnauthorized = null;
+export function setUnauthorizedHandler(fn) {
+  onUnauthorized = fn;
+}
+
 api.interceptors.request.use(async (config) => {
   const token = await getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Refresh the access token once on 401, then replay the request.
+// Refresh the access token once on 401, then replay the request. If the refresh
+// itself fails, the credentials are dead — clear them so every subsequent
+// request (guest report create/view included) goes out anonymously instead of
+// looping on 401s forever.
 let refreshing = null;
 api.interceptors.response.use(
   (res) => res,
@@ -58,16 +68,23 @@ api.interceptors.response.use(
     const status = error.response?.status;
     if (status === 401 && original && !original._retried) {
       original._retried = true;
+      const hadToken = !!(await getAccessToken());
+      let newAccess = null;
       try {
         if (!refreshing) refreshing = doRefresh();
-        const newAccess = await refreshing;
-        refreshing = null;
-        if (newAccess) {
-          original.headers.Authorization = `Bearer ${newAccess}`;
-          return api(original);
-        }
+        newAccess = await refreshing;
       } catch {
+        newAccess = null;
+      } finally {
         refreshing = null;
+      }
+      if (newAccess) {
+        original.headers.Authorization = `Bearer ${newAccess}`;
+        return api(original);
+      }
+      if (hadToken) {
+        await clearTokens();
+        onUnauthorized?.();
       }
     }
     return Promise.reject(error);
