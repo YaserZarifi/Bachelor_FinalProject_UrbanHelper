@@ -262,15 +262,14 @@ class ReanalyzeEndpointTests(NoAutoNLPMixin, TestCase):
             APIClient().post(f"/api/nlp/reanalyze/{report.id}/").status_code, 401
         )
 
-    def test_a_plain_citizen_can_currently_trigger_re_analysis(self):
-        # ⚠️ The docstring says "admins only" but the view carries no
-        # IsAdminUser permission, so the project default (IsAuthenticated)
-        # applies. Pinned here so the gap is visible rather than assumed.
+    def test_a_plain_citizen_is_forbidden(self):
+        # The view is admin-only (IsAdminUser); a signed-in non-staff citizen
+        # must not be able to spend re-analysis (and Groq) budget.
         report = make_report(description="چاله در خیابان")
         response = auth(APIClient(), make_user(username="citizen2")).post(
             f"/api/nlp/reanalyze/{report.id}/"
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
 
 class SignalRegistrationTests(TestCase):

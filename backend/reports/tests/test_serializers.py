@@ -115,48 +115,37 @@ class GeoJsonShapeTests(TestCase):
         self.assertEqual(props["nlp_crisis_keywords"], ["گاز"])
 
 
-class GeometryEncodingDeviationTests(TestCase):
-    """⚠️ Known deviation from the documented GeoJSON contract.
+class GeometryEncodingTests(TestCase):
+    """The geometry must serialize as a GeoJSON object, not an EWKT string.
 
     ``django-rest-framework-gis`` installs its GeoDjango→``GeometryField``
-    serializer mapping from its ``AppConfig.ready()``. ``rest_framework_gis`` is
-    **not** listed in ``INSTALLED_APPS``, so that hook never runs and DRF falls
-    back to a generic ``ModelField`` for ``Report.location`` — which renders the
-    geometry as EWKT (``"SRID=4326;POINT (51.389 35.6892)"``) instead of
-    ``{"type": "Point", "coordinates": [lng, lat]}``.
-
-    Consequences observed in the clients:
-
-    * ``frontend-admin`` copes — its ``toLatLng()`` parses both encodings;
-    * ``frontend-citizen`` and ``mobile`` read ``geometry.coordinates`` directly,
-      so their ``lat``/``lng`` come out ``undefined``.
-
-    Fix: add ``"rest_framework_gis"`` to ``INSTALLED_APPS``. These tests pin the
-    behaviour as it is today; once the app is registered they will fail loudly
-    and should be updated to assert the GeoJSON object form.
+    serializer mapping from its ``AppConfig.ready()``, so ``rest_framework_gis``
+    has to be in ``INSTALLED_APPS``; otherwise DRF falls back to a generic
+    ``ModelField`` for ``Report.location`` and renders the geometry as EWKT
+    (``"SRID=4326;POINT (51.389 35.6892)"``), which ``frontend-citizen`` and
+    ``mobile`` (both read ``geometry.coordinates`` directly) cannot decode.
     """
 
-    def test_location_is_not_mapped_to_a_geometry_field(self):
-        from rest_framework.fields import ModelField
+    def test_location_is_mapped_to_a_geometry_field(self):
+        from rest_framework_gis.fields import GeometryField
 
-        self.assertIsInstance(ReportSerializer().fields["location"], ModelField)
+        self.assertIsInstance(ReportSerializer().fields["location"], GeometryField)
 
-    def test_rest_framework_gis_is_not_installed(self):
+    def test_rest_framework_gis_is_installed(self):
         from django.conf import settings
 
-        self.assertNotIn("rest_framework_gis", settings.INSTALLED_APPS)
+        self.assertIn("rest_framework_gis", settings.INSTALLED_APPS)
 
-    def test_geometry_is_currently_emitted_as_ewkt(self):
+    def test_geometry_is_emitted_as_a_geojson_point(self):
         geometry = ReportSerializer(make_report()).data["geometry"]
-        self.assertIsInstance(geometry, str)
-        self.assertTrue(geometry.startswith("SRID=4326;POINT"))
+        self.assertIsInstance(geometry, dict)
+        self.assertEqual(geometry["type"], "Point")
+        self.assertEqual(len(geometry["coordinates"]), 2)
 
-    def test_the_coordinates_are_still_recoverable_by_clients(self):
-        geometry = ReportSerializer(make_report()).data["geometry"]
-        self.assertEqual(
-            geometry_lng_lat(geometry),
-            (round(TEHRAN_LNG, 4), round(TEHRAN_LAT, 4)),
-        )
+    def test_the_coordinates_are_in_lng_lat_order(self):
+        lng, lat = geometry_lng_lat(ReportSerializer(make_report()).data["geometry"])
+        self.assertAlmostEqual(lng, TEHRAN_LNG, places=5)
+        self.assertAlmostEqual(lat, TEHRAN_LAT, places=5)
 
 
 class ReadOnlyFieldTests(NoAutoNLPMixin, TestCase):

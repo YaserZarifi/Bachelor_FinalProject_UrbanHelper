@@ -105,20 +105,17 @@ describe('flattenFeature — collapsing one Feature for the UI', () => {
     expect(flat.lat).toBeUndefined()
   })
 
-  it('⚠️ cannot read coordinates from the EWKT string the API actually sends', () => {
-    // The backend emits `"SRID=4326;POINT (51.389 35.6892)"` because
-    // `rest_framework_gis` is missing from INSTALLED_APPS. This helper only
-    // understands the GeoJSON object form, so lat/lng come out undefined.
-    // Pinned as a regression test: once the backend is fixed, or this helper
-    // learns to parse WKT, this expectation must be updated.
+  it('also reads coordinates from an (E)WKT string geometry', () => {
+    // The backend now emits GeoJSON, but the helper stays tolerant of the EWKT
+    // form so a misconfigured server does not silently break the map.
     const flat = flattenFeature({
       type: 'Feature',
       id: 1,
       geometry: 'SRID=4326;POINT (51.389 35.6892)',
       properties: {},
     })
-    expect(flat.lat).toBeUndefined()
-    expect(flat.lng).toBeUndefined()
+    expect(flat.lng).toBe(51.389)
+    expect(flat.lat).toBe(35.6892)
   })
 })
 

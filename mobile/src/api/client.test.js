@@ -87,18 +87,23 @@ describe('flattenFeature — mobile collapses the envelope', () => {
     expect(flattenFeature(undefined)).toBeUndefined()
   })
 
-  it('⚠️ cannot read the EWKT geometry the API actually returns', () => {
-    // Same gap as the citizen web app: the backend emits
-    // "SRID=4326;POINT (lng lat)" because `rest_framework_gis` is not in
-    // INSTALLED_APPS, so lat/lng arrive undefined on this client too.
+  it('also reads an (E)WKT string geometry', () => {
+    // The backend emits GeoJSON; the helper stays tolerant of the EWKT form so
+    // a misconfigured server does not silently break coordinates on mobile.
     const flat = flattenFeature({
       type: 'Feature',
       id: 1,
       geometry: 'SRID=4326;POINT (51.389 35.6892)',
       properties: {},
     })
-    expect(flat.lat).toBeUndefined()
+    expect(flat.lng).toBe(51.389)
+    expect(flat.lat).toBe(35.6892)
+  })
+
+  it('leaves lat/lng undefined when the geometry is absent', () => {
+    const flat = flattenFeature({ type: 'Feature', id: 1, properties: {} })
     expect(flat.lng).toBeUndefined()
+    expect(flat.lat).toBeUndefined()
   })
 })
 

@@ -393,9 +393,9 @@ class ReportTransitionActionTests(NoAutoNLPMixin, TestCase):
 class DistanceFilterTests(NoAutoNLPMixin, TestCase):
     """`DistanceToPointFilter` powers "reports near me" on the map.
 
-    ⚠️ `ReportViewSet` does not set `distance_filter_convert_meters`, so `dist`
-    is interpreted in **degrees**, not metres — a `dist=1000` query therefore
-    matches the whole hemisphere rather than a 1 km radius.
+    `ReportViewSet` sets `distance_filter_convert_meters = True`, so `dist` is a
+    radius in **metres**. `near` sits ~90 m east of the query point and `far`
+    ~270 km east.
     """
 
     def setUp(self):
@@ -414,23 +414,27 @@ class DistanceFilterTests(NoAutoNLPMixin, TestCase):
 
     def test_a_tight_radius_returns_only_the_nearby_report(self):
         response = self.client.get(
-            REPORTS_URL, {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}", "dist": "0.01"}
+            REPORTS_URL, {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}", "dist": "500"}
         )
         self.assertEqual(self._ids(response), {self.near.id})
 
     def test_a_wide_radius_returns_both(self):
         response = self.client.get(
-            REPORTS_URL, {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}", "dist": "10"}
+            REPORTS_URL, {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}", "dist": "400000"}
         )
         self.assertEqual(self._ids(response), {self.near.id, self.far.id})
 
-    def test_the_dist_parameter_is_in_degrees_not_metres(self):
-        # Documents the gotcha above: 0.5 "metres" would exclude everything, but
-        # 0.5 degrees ≈ 55 km, so the nearby report still matches.
-        response = self.client.get(
-            REPORTS_URL, {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}", "dist": "0.5"}
+    def test_the_dist_parameter_is_a_radius_in_metres(self):
+        base = {"point": f"{TEHRAN_LNG},{TEHRAN_LAT}"}
+        # 1 km catches the ~90 m report but not the ~270 km one.
+        self.assertEqual(
+            self._ids(self.client.get(REPORTS_URL, {**base, "dist": "1000"})),
+            {self.near.id},
         )
-        self.assertIn(self.near.id, self._ids(response))
+        # 5 m catches nothing.
+        self.assertEqual(
+            self._ids(self.client.get(REPORTS_URL, {**base, "dist": "5"})), set()
+        )
 
     def test_a_malformed_point_is_a_client_error(self):
         response = self.client.get(REPORTS_URL, {"point": "not,a,point", "dist": "1"})

@@ -158,12 +158,10 @@ _WKT_POINT = re.compile(r"POINT\s*\(\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\)", re.I)
 def geometry_lng_lat(geometry) -> tuple[float, float] | None:
     """Read ``(lng, lat)`` out of a serialized geometry.
 
-    The API currently emits EWKT (``"SRID=4326;POINT (51.389 35.6892)"``) rather
-    than a GeoJSON geometry object — see
-    ``reports.tests.test_serializers.GeometryEncodingDeviationTests`` for the
-    cause and the one-line fix. Both encodings are accepted here so the rest of
-    the suite keeps asserting *the coordinates*, which is the part that actually
-    matters, and stays green either way.
+    The API emits a GeoJSON geometry object; EWKT
+    (``"SRID=4326;POINT (51.389 35.6892)"``) is also accepted so a caller that
+    hits a misconfigured server still asserts *the coordinates*, which is the
+    part that actually matters.
     """
     if not geometry:
         return None

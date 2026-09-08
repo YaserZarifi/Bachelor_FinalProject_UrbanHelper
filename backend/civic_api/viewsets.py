@@ -48,6 +48,10 @@ class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all().order_by("-created_at")
     serializer_class = ReportSerializer
     distance_filter_field = "location"
+    # Interpret ?dist= as metres (the client sends "reports near me" radii in
+    # metres). Without this DistanceToPointFilter treats dist as degrees, so a
+    # 1 km request would match the whole hemisphere.
+    distance_filter_convert_meters = True
     filter_backends = (DistanceToPointFilter,)
     bbox_filter_field = "location" # Optional: for map bounds filtering
 

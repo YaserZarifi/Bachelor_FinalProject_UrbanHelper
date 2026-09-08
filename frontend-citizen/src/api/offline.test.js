@@ -35,13 +35,6 @@ beforeEach(() => {
   // factory gives each test a clean queue without needing to close anything.
   globalThis.indexedDB = new IDBFactory()
   vi.mocked(api.post).mockReset()
-
-  // Queue keys are `${Date.now()}-${Math.round(performance.now())}`, so two
-  // saves inside the same millisecond produce the same key. Forcing the clock
-  // forward keeps every other test deterministic; the collision itself is
-  // pinned separately in "known issues" below.
-  let tick = 0
-  vi.spyOn(performance, 'now').mockImplementation(() => (tick += 1))
 })
 
 describe('queueing a capture', () => {
@@ -104,25 +97,20 @@ describe('queueing a capture', () => {
   })
 })
 
-describe('known issues', () => {
-  it('⚠️ two captures queued in the same millisecond overwrite each other', async () => {
-    // `saveReportOffline` derives its IndexedDB key from
-    // `${Date.now()}-${Math.round(performance.now())}` — both millisecond
-    // resolution. Two captures saved inside the same millisecond therefore get
-    // the same key, and `put` silently replaces the first: one report is lost
-    // before it is ever uploaded.
-    //
-    // A collision-free key (e.g. `crypto.randomUUID()`) fixes it. Until then,
-    // this test documents the data-loss window; it must be inverted once the
-    // key generation changes.
+describe('collision-free queue keys', () => {
+  it('keeps both captures when two are queued in the same millisecond', async () => {
+    // The key used to be `${Date.now()}-${Math.round(performance.now())}` (both
+    // millisecond resolution), so a rapid-capture loop silently overwrote the
+    // first report. `newQueueId()` (crypto.randomUUID) removes the window.
     vi.spyOn(Date, 'now').mockReturnValue(1_800_000_000_000)
     vi.spyOn(performance, 'now').mockReturnValue(42)
 
     await saveReportOffline({ description: 'گزارش اول', capture: capture() })
     await saveReportOffline({ description: 'گزارش دوم', capture: capture() })
 
-    expect(await countPendingReports()).toBe(1)
-    expect((await getPendingReports())[0].description).toBe('گزارش دوم')
+    expect(await countPendingReports()).toBe(2)
+    const descriptions = (await getPendingReports()).map((i) => i.description).sort()
+    expect(descriptions).toEqual(['گزارش اول', 'گزارش دوم'].sort())
   })
 })
 

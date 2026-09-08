@@ -110,14 +110,14 @@ class JwtSubscriptionTests(TransactionTestCase):
         self.assertFalse(connected)
         self.assertEqual(code, 4403)
 
-    async def test_staff_have_no_implicit_socket_access(self):
-        # ⚠️ Documented asymmetry: the REST layer lets staff read every report,
-        # but the consumer only checks ownership, so a staff JWT is refused.
-        _, connected, code = await connect(
+    async def test_a_staff_jwt_is_accepted_for_any_report(self):
+        # Mirrors the REST layer: staff may read every report, so they may also
+        # subscribe to its live channel without owning it.
+        communicator, connected, _ = await connect(
             self.report.id, f"?access={access_token_for(self.staff)}"
         )
-        self.assertFalse(connected)
-        self.assertEqual(code, 4403)
+        self.assertTrue(connected)
+        await communicator.disconnect()
 
     async def test_a_guest_token_still_works_alongside_an_invalid_jwt(self):
         report = await database_sync_to_async(_make_report_sync)()

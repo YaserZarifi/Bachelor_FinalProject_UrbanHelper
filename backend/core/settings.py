@@ -55,6 +55,11 @@ INSTALLED_APPS = [
 
     # Spatial database support
     'django.contrib.gis',
+    # Registers the GeoDjango field -> DRF GeometryField mapping from its
+    # AppConfig.ready(); without it ReportSerializer.location falls back to a
+    # generic ModelField and the geometry serializes as an EWKT string instead
+    # of a GeoJSON object.
+    'rest_framework_gis',
 
     'civic_api',
 

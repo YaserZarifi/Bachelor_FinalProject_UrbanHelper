@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAdminUser
 
 from .service import analyze_report
 from reports.models import Category
@@ -83,6 +84,8 @@ class ReAnalyzeReportView(APIView):
     تحلیل مجدد یک گزارش موجود (مثلاً پس از ویرایش متن).
     فقط برای ادمین/مدیر.
     """
+
+    permission_classes = [IsAdminUser]
 
     def post(self, request, report_id: int):
         from reports.models import Report

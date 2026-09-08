@@ -32,6 +32,17 @@ function tx(db, mode) {
   return db.transaction(STORE, mode).objectStore(STORE)
 }
 
+/**
+ * Collision-free queue key. `${Date.now()}-${performance.now()}` both resolve to
+ * the millisecond, so two captures saved inside the same millisecond (easy in a
+ * rapid-capture loop) produced the same key and `put` silently overwrote the
+ * first — one report lost before it was ever uploaded.
+ */
+function newQueueId() {
+  if (globalThis.crypto?.randomUUID) return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`
+}
+
 /** List queued captures (without resolving blobs into URLs). */
 export async function getPendingReports() {
   const db = await openDB()
@@ -58,7 +69,7 @@ export async function countPendingReports() {
 export async function saveReportOffline({ category, description, capture }) {
   const db = await openDB()
   const item = {
-    id: `${Date.now()}-${Math.round(performance.now())}`,
+    id: newQueueId(),
     category: category || null,
     description,
     blob: capture.blob, // IndexedDB stores Blobs natively

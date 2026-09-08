@@ -111,8 +111,8 @@ describe('STATUS_HEX matches the shared palette', () => {
 })
 
 describe('toLatLng tolerates both geometry encodings', () => {
-  // Extracted the same way, because the map depends on it and the backend
-  // currently sends EWKT rather than GeoJSON.
+  // The backend emits GeoJSON, but the map parser stays tolerant of (E)WKT too
+  // so a misconfigured server does not blank out every pin.
   const source = SOURCE.slice(
     SOURCE.indexOf('function toLatLng('),
     SOURCE.indexOf('function pinIcon('),

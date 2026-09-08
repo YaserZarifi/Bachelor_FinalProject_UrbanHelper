@@ -4,6 +4,7 @@ import urllib.parse
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -19,6 +20,11 @@ def _get_report(pk: int):
         return None
 
 
+@database_sync_to_async
+def _is_staff(user_id: int) -> bool:
+    return get_user_model().objects.filter(pk=user_id, is_staff=True).exists()
+
+
 class ReportConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.report_id = int(self.scope["url_route"]["kwargs"]["report_id"])
@@ -31,16 +37,24 @@ class ReportConsumer(AsyncJsonWebsocketConsumer):
             await self.close(code=4404)
             return
 
+        # Access mirrors the REST layer (ReportViewSet.get_queryset): the report
+        # owner, any staff user, or a valid guest token for this report.
         user = self.scope.get("user")
         allowed = False
-        if getattr(user, "is_authenticated", False) and report.user_id == user.id:
+        if getattr(user, "is_authenticated", False) and (
+            report.user_id == user.id or getattr(user, "is_staff", False)
+        ):
             allowed = True
         elif jwt_token:
             try:
                 validated = AccessToken(jwt_token)
                 uid = validated.get("user_id")
-                if uid and report.user_id == int(uid):
-                    allowed = True
+                if uid is not None:
+                    uid = int(uid)
+                    if report.user_id == uid:
+                        allowed = True
+                    elif validated.get("is_staff") or await _is_staff(uid):
+                        allowed = True
             except (InvalidToken, TokenError, TypeError, ValueError):
                 allowed = False
         if not allowed and guest_token:

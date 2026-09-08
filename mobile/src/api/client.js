@@ -126,15 +126,28 @@ export function flattenFeatures(payload) {
   return [];
 }
 
+const WKT_POINT = /POINT\s*\(\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\)/i;
+
+/** `[lng, lat]` from a GeoJSON geometry object or an (E)WKT `POINT` string. */
+function geometryLngLat(geometry) {
+  if (!geometry) return [];
+  if (Array.isArray(geometry.coordinates)) return geometry.coordinates;
+  if (typeof geometry === 'string') {
+    const m = geometry.match(WKT_POINT);
+    if (m) return [Number(m[1]), Number(m[2])];
+  }
+  return [];
+}
+
 /** Collapse a GeoJSON Feature into a flat object with lat/lng. */
 export function flattenFeature(f) {
   if (!f || f.type !== 'Feature') return f;
-  const coords = f.geometry?.coordinates || [];
+  const [lng, lat] = geometryLngLat(f.geometry);
   return {
     ...f.properties,
     id: f.id ?? f.properties?.id,
-    lng: coords[0],
-    lat: coords[1],
+    lng,
+    lat,
     guest_access_token:
       f.properties?.guest_access_token ?? f.guest_access_token ?? null,
   };

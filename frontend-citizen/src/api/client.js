@@ -135,15 +135,28 @@ export function flattenFeatures(payload) {
   return []
 }
 
+const WKT_POINT = /POINT\s*\(\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\)/i
+
+/** `[lng, lat]` from a GeoJSON geometry object or an (E)WKT `POINT` string. */
+function geometryLngLat(geometry) {
+  if (!geometry) return []
+  if (Array.isArray(geometry.coordinates)) return geometry.coordinates
+  if (typeof geometry === 'string') {
+    const m = geometry.match(WKT_POINT)
+    if (m) return [Number(m[1]), Number(m[2])]
+  }
+  return []
+}
+
 /** Flatten a single GeoJSON Feature into `{...properties, id, lng, lat, guest_access_token}`. */
 export function flattenFeature(feature) {
   if (!feature) return null
   if (feature.type !== 'Feature') return feature
-  const coords = feature.geometry?.coordinates || []
+  const [lng, lat] = geometryLngLat(feature.geometry)
   return {
     id: feature.id,
-    lng: coords[0],
-    lat: coords[1],
+    lng,
+    lat,
     ...feature.properties,
   }
 }
